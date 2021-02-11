@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+  web:
+    container_name: web
+    depends_on:
+      - php
+      - percona
+    build:
+      context: ./docker-files/docker/nginx
+      args:
+        BUILD_ENV: PRODUCTION
+    restart: always
+    environment:
+      NGINX_PORT: 8080
+      NGINX_HOST: "localhost"
+    ports:
+      - "${DOCKER_HTTP_PORT}:8080"
+      - "${DOCKER_HTTPS_PORT}:8443"
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - frontend
+      - backend
+  php:
+    container_name: php
+    build: ./docker-files/docker/php
+    restart: always
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - backend
+      - frontend
+  percona:
+    container_name: percona
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DOCKER_PERCONA_ROOT}
+      MYSQL_DATABASE: ${DOCKER_PERCONA_DB}
+      MYSQL_USER: ${DOCKER_PERCONA_USER}
+      MYSQL_PASSWORD: ${DOCKER_PERCONA_PASSWORD}
+    build: ./docker-files/docker/percona
+    restart: always
+    volumes:
+      - ./docker-files/storage/percona:/var/lib/mysql
+      - ./docker-files/docker/percona/resources/config/my.cnf:/etc/my.cnf.d/my.cnf
+    ports:
+      - "${DOCKER_PERCONA_EXTERNAL_PORT}:3306"
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: ${DOCKER_NETWORKS_DRIVER}
+  backend:
+    driver: ${DOCKER_NETWORKS_DRIVER}

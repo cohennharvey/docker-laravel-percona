@@ -34,10 +34,10 @@ RUN apt-get update && apt-get install -y \
 
 # Install node
 RUN DEBIAN_FRONTEND="noninteractive" curl -sL https://deb.nodesource.com/setup_12.x | bash -
-RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y nodejs    
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y nodejs
 
 # Install PHP extensions
-RUN docker-php-ext-install -j$(nproc) opcache bcmath zip pdo_mysql mysqli 
+RUN docker-php-ext-install -j$(nproc) opcache bcmath zip pdo_mysql mysqli
 #    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
 #    && docker-php-ext-install -j$(nproc) gd
 
@@ -45,20 +45,16 @@ RUN docker-php-ext-install -j$(nproc) opcache bcmath zip pdo_mysql mysqli
 RUN pecl install xdebug
 RUN mkdir -p /usr/local/etc/php/${XDEBUG_CONF}
 RUN \
-    echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so" > /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.default_enable = 1" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.remote_enable = 1" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.remote_handler = dbgp" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.remote_autostart = 0" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.remote_connect_back = 0" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.remote_port = 9000" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.remote_host =" ${XDEBUG_HOST} >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.profiler_enable=0" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.profiler_enable_trigger=1" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
-    echo "xdebug.profiler_output_dir=\"/tmp\"" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini
+    echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20190902/xdebug.so" > /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
+    echo "xdebug.mode = debug" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
+    echo "xdebug.start_with_request = trigger" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
+    echo "xdebug.discover_client_host = 0" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
+    echo "xdebug.client_port = 9003" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
+    echo "xdebug.client_host =" ${XDEBUG_HOST} >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini && \
+    echo "xdebug.output_dir=\"/tmp\"" >> /usr/local/etc/php/${XDEBUG_CONF}/xdebug.ini
 
 # Install composer
-COPY --from=composer:1.6 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.0 /usr/bin/composer /usr/bin/composer
 
 ##############################################################################
 # phpunit
